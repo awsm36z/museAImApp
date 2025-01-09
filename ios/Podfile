@@ -5,7 +5,9 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
+# Update platform to at least 14.0
 platform :ios, min_ios_version_supported
+
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -17,9 +19,14 @@ end
 target 'MuseAImReactNative' do
   config = use_native_modules!
 
+
+  # Add react-native-webrtc explicitly
+  # pod 'react-native-webrtc', :path => '../node_modules/react-native-webrtc'
+  # pod 'react-native-gesture-handler', :path => File.join(File.dirname(`node --print "require.resolve('react-native-gesture-handler/package.json')"`), '..')
+
+
   use_react_native!(
     :path => config[:reactNativePath],
-    # An absolute path to your application root.
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
@@ -29,12 +36,17 @@ target 'MuseAImReactNative' do
   end
 
   post_install do |installer|
-    # https://github.com/facebook/react-native/blob/main/packages/react-native/scripts/react_native_pods.rb#L197-L202
     react_native_post_install(
       installer,
       config[:reactNativePath],
       :mac_catalyst_enabled => false,
-      # :ccache_enabled => true
     )
+    
+    # Ensure bridging headers are properly configured
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'arm64'
+      end
+    end
   end
 end
