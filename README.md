@@ -35,7 +35,7 @@ MuseAImReactNative/
 
 ### 1. Clone the Repository
 ```
-git clone https://github.com/YOUR_USERNAME/MuseAImReactNative.git
+git clone https://github.com/awsm36z/MuseAImReactNative.git
 cd MuseAImReactNative
 ```
 
